@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --anthropic-bg: #FAF9F5;
+    --anthropic-text: #141413;
+    --anthropic-card: #FFFFFF;
+    --anthropic-border: #E6E4DC;
+    --anthropic-accent: #D97757;
+  }
+
+  .dark {
+    --anthropic-bg: #141413;
+    --anthropic-text: #FAF9F5;
+    --anthropic-card: #1C1B19;
+    --anthropic-border: #2E2D29;
+    --anthropic-accent: #E08264;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--anthropic-bg);
+    color: var(--anthropic-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom Editorial Styling */
+.font-serif-anthropic {
+  font-family: 'Newsreader', Georgia, Cambria, 'Times New Roman', serif;
+}
+
+.font-sans-anthropic {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-mono-anthropic {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Anthropic subtle grain / glow texture */
+.anthropic-glow {
+  background: radial-gradient(circle at 50% 20%, rgba(217, 119, 87, 0.08) 0%, transparent 60%);
+}
+
+.dark .anthropic-glow {
+  background: radial-gradient(circle at 50% 20%, rgba(217, 119, 87, 0.15) 0%, transparent 60%);
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1CEC4;
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3E3D38;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D97757;
+}
