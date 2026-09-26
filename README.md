@@ -1,65 +1,103 @@
-# Claude Opus 5.5 — Official Launch Showcase & Developer Guide
+# Pune Auto Rush — 3D Endless Rickshaw Runner 🛺💨
 
-An authentic, high-fidelity replica and interactive showcase of the official Anthropic **Claude Opus 5.5** launch announcement, benchmark evaluation suite, and production prompting strategy guide.
+An indie-grade 3D browser endless runner built with **React**, **Three.js**, **Vite**, and **Tailwind CSS**. Drive your iconic yellow-green Bajaj RE auto-rickshaw through the bustling streets of Pune during the golden sunset hour (*shaam ki lighting*).
 
-![Anthropic Claude Opus 5.5](https://img.shields.io/badge/Anthropic-Opus%205.5-E07048?style=flat-square)
+![Three.js](https://img.shields.io/badge/Three.js-r128-black?style=flat-square&logo=three.js)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat-square&logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38B2AC?style=flat-square&logo=tailwind-css)
 ![Vercel Ready](https://img.shields.io/badge/Vercel-Deployment%20Ready-000000?style=flat-square&logo=vercel)
+![Netlify Ready](https://img.shields.io/badge/Netlify-Ready-00C7B7?style=flat-square&logo=netlify)
 
 ---
 
-## 🌟 Features Included
+## 🎮 Game Overview
 
-- **Exact Anthropic Editorial Aesthetic**: Warm ivory (`#FAF9F5`) and obsidian dark mode (`#141413`), Newsreader editorial typography, terracotta accents, and interactive harmonic particle-wave canvas.
-- **Unabridged Launch Article**: 100% complete text covering the September 22, 2026 launch, Dario Amodei's *Pacing the Frontier* manifesto, and early tester case studies (HAProxy C-to-Rust rewrite, 680k-line migration, 200k-line audit).
-- **Interactive Benchmark Matrix**: Filterable comparison across Terminal-Bench 4.0, FrontierCode v1.1, CursorBench, GDPval-AA v2.1, Humanity's Last Exam (HLE), AutomationBench, OSWorld 2.0, and Chartography.
-- **Cost vs. Accuracy Visualizer**: Multi-tab log-scale charts comparing Claude Opus 5.5, Fable 5.1, Opus 5, and GPT-6 Astra across model effort tiers.
-- **Real-Time ROI & Token Calculator**: Interactive simulator computing dollar savings based on the 60% price drop for prompt cache reads ($0.20/M).
-- **Side-by-Side Communication Comparator**: Interactive diffs demonstrating Opus 5.5's direct, bottom-line-first communication style vs. Opus 5.
-- **Dedicated Prompting Strategy Guide**:
-  - Breakdown of breaking architectural changes (Always-on Adaptive Thinking, `medium` default effort, deprecation of `tool_choice: "any"`).
-  - Four pillars of prompting (Define Done, Explore-Plan-Code-Commit, XML boundaries, Self-verification loops).
-  - Interactive production prompt generator with copyable XML templates.
+- **Vehicle**: Authentic Pune Auto-Rickshaw (emerald green lower body, vibrant yellow canopy, 3 rolling wheels, chrome bumper, clear windshield with wiper, fare meter, dashboard, driver and passenger seats, working headlights and tail lights).
+- **Environment**: Infinite 3-lane Indian highway during golden hour with warm sunset glow, soft PCF shadows, and atmospheric evening fog.
+- **Roadside Pune Scenery**:
+  - *Chai Tapri*: Blue tarpaulin roof, wooden counter, brass tea kettle, cutting chai glasses, and *Yewale Chai* signboard.
+  - *Kirana Store*: 2-storey building with striped awning, grain sacks, and *Gupta Kirana* signboard.
+  - *Medical Store*: Storefront with glowing green cross emblem and *Sanjivani Medical* signboard.
+  - *Peepal Trees*: Low-poly banyan/peepal trees with lush foliage canopies.
+  - *Electric Utility Poles*: Concrete poles with realistic sagging overhead power cables (*bijli ke taar*).
+  - *Kites (Patang)*: Colorful Indian paper kites fluttering in the evening breeze.
+- **Dynamic Obstacles**:
+  - **Gaaye (Desi Cow)**: White/cream humped cow standing in a lane with animated chewing head.
+  - **Ulti Bike (Oncoming Motorcycle)**: Fast oncoming motorbike with rider in helmet, spinning wheels, and bright headlight beam!
+  - **Gaddhe (Potholes)**: Recessed cracked asphalt craters with muddy water puddles. Can be dodged or jumped over!
+  - **Barricades**: Pune Police yellow/black striped hazard barriers with flashing beacons.
+- **Collectibles**:
+  - ☕ **Cutting Chai (+10 pts)**: Steaming glass cup with golden rotating halo ring.
+  - 🙋‍♂️ **Sawaari (+50 pts)**: Roadside passenger hailing the auto (*"Bhaiya, Auto!"*) with animated waving arm and glowing pickup ring.
+- **Procedural Audio (Web Audio API)**:
+  - Dynamic 2-stroke engine sound scaling pitch with acceleration.
+  - Dual-tone Indian auto horn (`H` key / Horn button) with *"PO POH! 📯"* visual popup.
+  - Glass *"ting"* chime for Chai cups (+10).
+  - 4-note celebratory fanfare for Sawaari (+50).
+  - Heavy sub-bass crunch thud for impacts.
+  - Jump whoosh sound.
+  - Global audio mute toggle.
+
+---
+
+## 🕹️ Controls
+
+| Action | Desktop Keyboard | Mobile / Touch Screen |
+| :--- | :--- | :--- |
+| **Steer Left** | `←` or `A` | Swipe Left or Tap `LEFT` Button |
+| **Steer Right** | `→` or `D` | Swipe Right or Tap `RIGHT` Button |
+| **Jump** | `Space`, `↑`, or `W` | Swipe Up, Tap Screen, or Tap `JUMP` Button |
+| **Horn** | `H` key | Tap `📢` Horn Button |
+| **Pause** | `Esc` or `P` | Tap `⏸` Pause Button |
+| **Mute Audio**| `M` key | Tap `🔊` Mute Button |
 
 ---
 
 ## 🚀 Quick Start (Local Development)
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/satyamYadav33/Herdr.git
 cd Herdr
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Start development server
+# 3. Start local development server
 npm run dev
-
-# Or build and preview locally
-npm run build
-npm run preview
 ```
 
----
-
-## ☁️ Deploying to Vercel
-
-This repository is pre-configured for seamless, zero-config deployment to Vercel:
-
-1. Log into your [Vercel Dashboard](https://vercel.com).
-2. Click **"Add New"** > **"Project"**.
-3. Import the `satyamYadav33/Herdr` repository.
-4. Vercel will automatically detect **Vite**:
-   - **Framework Preset**: `Vite`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-5. Click **Deploy**. Your site will be live in seconds!
+Visit `http://localhost:3000` in your browser.
 
 ---
 
-## 📄 License
+## 🚢 Production Deployment
 
-MIT License. Designed for research and educational exploration of frontier AI systems.
+### Deploy to Vercel
+1. Push your repository to GitHub.
+2. Go to [Vercel](https://vercel.com) and click **"New Project"**.
+3. Import your GitHub repository.
+4. Framework Preset: **Vite**.
+5. Build Command: `npm run build`
+6. Output Directory: `dist`
+7. Click **Deploy**.
+
+### Deploy to Netlify
+1. Go to [Netlify](https://netlify.com) and click **"Add new site"** &rarr; **"Import an existing project"**.
+2. Select your GitHub repository.
+3. Build command: `npm run build`
+4. Publish directory: `dist`
+5. Click **Deploy**.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: React 18
+- **3D Graphics Engine**: Three.js (r128)
+- **Bundler & Tooling**: Vite 6
+- **Styling**: Tailwind CSS
+- **Audio**: Web Audio API (Synthesized procedural sound effects)
+- **Icons**: Lucide React
+- **Celebration Effects**: Canvas Confetti

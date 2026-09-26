@@ -3,73 +3,66 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --anthropic-bg: #FAF9F5;
-    --anthropic-text: #141413;
-    --anthropic-card: #FFFFFF;
-    --anthropic-border: #E6E4DC;
-    --anthropic-accent: #D97757;
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 
-  .dark {
-    --anthropic-bg: #141413;
-    --anthropic-text: #FAF9F5;
-    --anthropic-card: #1C1B19;
-    --anthropic-border: #2E2D29;
-    --anthropic-accent: #E08264;
-  }
-
-  html {
-    scroll-behavior: smooth;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  body {
-    background-color: var(--anthropic-bg);
-    color: var(--anthropic-text);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background-color: #1a0f05;
+    font-family: 'Outfit', sans-serif;
+    touch-action: none;
   }
 }
 
-/* Custom Editorial Styling */
-.font-serif-anthropic {
-  font-family: 'Newsreader', Georgia, Cambria, 'Times New Roman', serif;
+.font-bungee {
+  font-family: 'Bungee', cursive;
 }
 
-.font-sans-anthropic {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+/* Screen Shake Effect */
+.screen-shake {
+  animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
-.font-mono-anthropic {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+@keyframes shake {
+  10%, 90% { transform: translate3d(-3px, 1px, 0) rotate(-0.5deg); }
+  20%, 80% { transform: translate3d(4px, -2px, 0) rotate(0.8deg); }
+  30%, 50%, 70% { transform: translate3d(-5px, 3px, 0) rotate(-0.8deg); }
+  40%, 60% { transform: translate3d(5px, -2px, 0) rotate(0.5deg); }
 }
 
-/* Anthropic subtle grain / glow texture */
-.anthropic-glow {
-  background: radial-gradient(circle at 50% 20%, rgba(217, 119, 87, 0.08) 0%, transparent 60%);
+/* Floating Popup Animation */
+@keyframes floatUp {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, -20px) scale(1.15); }
+  85% { opacity: 1; transform: translate(-50%, -60px) scale(1.0); }
+  100% { opacity: 0; transform: translate(-50%, -85px) scale(0.8); }
 }
 
-.dark .anthropic-glow {
-  background: radial-gradient(circle at 50% 20%, rgba(217, 119, 87, 0.15) 0%, transparent 60%);
+.animate-float-up {
+  animation: floatUp 0.85s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
 }
 
-/* Smooth custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(22, 14, 8, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 190, 80, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #D1CEC4;
-  border-radius: 3px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #3E3D38;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #D97757;
+
+.glass-panel-accent {
+  background: linear-gradient(135deg, rgba(255, 180, 0, 0.18) 0%, rgba(255, 90, 0, 0.18) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 200, 80, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 140, 0, 0.25);
 }

@@ -1,189 +1,201 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import IntroductionSection from './components/IntroductionSection';
-import SectionSkeleton from './components/SectionSkeleton';
-import BrandedLoader from './components/BrandedLoader';
-import Footer from './components/Footer';
-import SearchModal from './components/SearchModal';
-import { ArrowUp, BookOpen, RotateCcw } from 'lucide-react';
-
-// Lazy-loaded heavy interactive sections for optimized bundle splitting & Core Web Vitals
-const BenchmarkGrid = lazy(() => import('./components/BenchmarkGrid'));
-const CostAccuracyCharts = lazy(() => import('./components/CostAccuracyCharts'));
-const PricingCalculator = lazy(() => import('./components/PricingCalculator'));
-const CodingAgentSection = lazy(() => import('./components/CodingAgentSection'));
-const KnowledgeWorkSection = lazy(() => import('./components/KnowledgeWorkSection'));
-const CommunicationDiff = lazy(() => import('./components/CommunicationDiff'));
-const SafetySection = lazy(() => import('./components/SafetySection'));
-const PromptingGuideSection = lazy(() => import('./components/PromptingGuideSection'));
+import React, { useState, useEffect, useRef } from 'react';
+import { GameCanvas } from './components/GameCanvas';
+import { HUD } from './components/HUD';
+import { StartScreen } from './components/StartScreen';
+import { GameOverScreen } from './components/GameOverScreen';
+import { PauseModal } from './components/PauseModal';
+import { sound } from './game/audio';
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [readingProgress, setReadingProgress] = useState(0);
-  const [activeSection, setActiveSection] = useState('introduction');
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [gameState, setGameState] = useState('MENU'); // 'MENU', 'PLAYING', 'PAUSED', 'GAMEOVER'
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [distance, setDistance] = useState(0);
+  const [speed, setSpeed] = useState(36);
+  const [chaiCount, setChaiCount] = useState(0);
+  const [sawaariCount, setSawaariCount] = useState(0);
+  const [highScore, setHighScore] = useState(0);
+  const [isNewRecord, setIsNewRecord] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [flashRed, setFlashRed] = useState(false);
+  const [floatingPopups, setFloatingPopups] = useState([]);
+  const [finalStats, setFinalStats] = useState({ distance: 0, chai: 0, sawaari: 0 });
 
-  // Sync dark mode class with root html
+  const engineRef = useRef(null);
+  const popupIdRef = useRef(0);
+
+  // Load high score from localStorage
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    const saved = localStorage.getItem('pune_auto_high_score');
+    if (saved) {
+      setHighScore(parseInt(saved, 10));
     }
-  }, [darkMode]);
-
-  // Scroll listener for reading progress and active section
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollTop || document.body.scrollTop;
-      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const progress = (totalScroll / windowHeight) * 100;
-      setReadingProgress(progress);
-      setShowScrollTop(totalScroll > 600);
-
-      // Detect current section in view
-      const sectionIds = [
-        'introduction',
-        'benchmarks',
-        'pricing',
-        'coding',
-        'communication',
-        'safety',
-        'prompting-guide',
-        'availability'
-      ];
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 200 && rect.bottom >= 200) {
-            setActiveSection(id);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Floating Popup Spawner
+  const spawnPopup = (text, color = '#ffeb3b') => {
+    const id = ++popupIdRef.current;
+    setFloatingPopups((prev) => [...prev, { id, text, color }]);
+    setTimeout(() => {
+      setFloatingPopups((prev) => prev.filter((p) => p.id !== id));
+    }, 850);
+  };
+
+  // Start Safari
+  const handleStartGame = () => {
+    sound.init();
+    sound.resume();
+    setScore(0);
+    setLives(3);
+    setDistance(0);
+    setChaiCount(0);
+    setSawaariCount(0);
+    setIsNewRecord(false);
+    setGameState('PLAYING');
+
+    if (engineRef.current) {
+      engineRef.current.start();
+    }
+  };
+
+  // Restart Safari
+  const handleRestart = () => {
+    sound.init();
+    sound.resume();
+    setScore(0);
+    setLives(3);
+    setDistance(0);
+    setChaiCount(0);
+    setSawaariCount(0);
+    setIsNewRecord(false);
+    setGameState('PLAYING');
+
+    if (engineRef.current) {
+      engineRef.current.restart();
+    }
+  };
+
+  // Toggle Pause
+  const handleTogglePause = () => {
+    if (gameState === 'PLAYING') {
+      setGameState('PAUSED');
+      if (engineRef.current) engineRef.current.pause();
+    } else if (gameState === 'PAUSED') {
+      setGameState('PLAYING');
+      if (engineRef.current) engineRef.current.resume();
+    }
+  };
+
+  // Toggle Audio Mute
+  const handleToggleMute = () => {
+    const muted = sound.toggleMute();
+    setIsMuted(muted);
+  };
+
+  // Collision feedback
+  const handleHit = () => {
+    setIsShaking(true);
+    setFlashRed(true);
+    setTimeout(() => setFlashRed(false), 200);
+    setTimeout(() => setIsShaking(false), 400);
+  };
+
+  // Horn trigger
+  const handleHorn = () => {
+    if (engineRef.current) {
+      engineRef.current.blowHorn();
+    }
+    spawnPopup('PO POH! 📯', '#ffcc00');
+  };
+
+  // Game Over Handler
+  const handleGameOver = (stats) => {
+    setFinalStats(stats);
+    setGameState('GAMEOVER');
+
+    if (stats.score > highScore) {
+      setIsNewRecord(true);
+      setHighScore(stats.score);
+      localStorage.setItem('pune_auto_high_score', stats.score.toString());
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] dark:bg-[#141413] text-[#141413] dark:text-[#FAF9F5] transition-colors duration-200">
-      {/* Branded Loading Animation (Claude Opus 5.5 \ Anthropic) */}
-      {isLoading && (
-        <BrandedLoader onComplete={() => setIsLoading(false)} />
+    <main
+      className={`relative w-full h-full overflow-hidden bg-[#1a0f05] ${
+        isShaking ? 'screen-shake' : ''
+      }`}
+    >
+      {/* Red Hit Flash Vignette */}
+      <div
+        className={`absolute inset-0 z-40 pointer-events-none transition-opacity duration-150 bg-gradient-radial from-red-600/30 to-red-900/70 ${
+          flashRed ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
+
+      {/* 3D WebGL Canvas */}
+      <GameCanvas
+        gameState={gameState}
+        engineRef={engineRef}
+        onScore={setScore}
+        onLives={setLives}
+        onDistance={setDistance}
+        onSpeed={setSpeed}
+        onChai={setChaiCount}
+        onSawaari={setSawaariCount}
+        onGameOver={handleGameOver}
+        onHit={handleHit}
+        onPopup={spawnPopup}
+        onHorn={handleHorn}
+        onTogglePause={handleTogglePause}
+      />
+
+      {/* Active Game HUD */}
+      {gameState === 'PLAYING' && (
+        <HUD
+          score={score}
+          lives={lives}
+          distance={distance}
+          speed={speed}
+          chaiCount={chaiCount}
+          sawaariCount={sawaariCount}
+          isMuted={isMuted}
+          onToggleMute={handleToggleMute}
+          onPause={handleTogglePause}
+          onSteerLeft={() => engineRef.current?.steerLeft()}
+          onSteerRight={() => engineRef.current?.steerRight()}
+          onJump={() => engineRef.current?.jump()}
+          onHorn={handleHorn}
+          floatingPopups={floatingPopups}
+        />
       )}
 
-      {/* Top Release Banner with Replay Animation Action */}
-      <div className="bg-[#141413] text-[#FAF9F5] dark:bg-[#252420] text-xs py-2 px-4 text-center font-medium border-b border-[#2E2D29] flex items-center justify-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-[#D97757] animate-pulse"></span>
-        <span>Anthropic Flagship Announcement: Claude Opus 5.5 is now generally available across all cloud platforms.</span>
-        <button 
-          onClick={() => setIsLoading(true)}
-          className="inline-flex items-center gap-1 text-[#D97757] hover:text-[#E08264] underline ml-2 transition-colors"
-          title="Replay website brand loading animation"
-        >
-          <RotateCcw className="w-3 h-3" />
-          <span>Replay Intro</span>
-        </button>
-      </div>
+      {/* Start Screen */}
+      {gameState === 'MENU' && (
+        <StartScreen highScore={highScore} onStart={handleStartGame} />
+      )}
 
-      {/* Main Header */}
-      <Header
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        readingProgress={readingProgress}
-      />
+      {/* Paused Screen */}
+      {gameState === 'PAUSED' && (
+        <PauseModal
+          onResume={handleTogglePause}
+          onRestart={handleRestart}
+          isMuted={isMuted}
+          onToggleMute={handleToggleMute}
+        />
+      )}
 
-      {/* Main Content Area */}
-      <main id="main-content" className="relative">
-        <Hero activeSection={activeSection} />
-        
-        {/* Core Introductory Overview */}
-        <IntroductionSection />
-
-        {/* Lazy Loaded Interactive Sections with Shimmer Fallbacks */}
-        <Suspense fallback={<SectionSkeleton title="Loading Benchmarks..." count={2} height="h-64" />}>
-          <BenchmarkGrid />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Loading Cost vs Accuracy Models..." count={1} height="h-80" />}>
-          <CostAccuracyCharts />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Loading Pricing Simulator..." count={2} height="h-64" />}>
-          <PricingCalculator />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Loading Agentic Case Studies..." count={2} height="h-64" />}>
-          <CodingAgentSection />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Loading Knowledge Work Evaluations..." count={2} height="h-64" />}>
-          <KnowledgeWorkSection />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Loading Communication Diff Comparator..." count={2} height="h-72" />}>
-          <CommunicationDiff />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Loading Safety & Containment Policies..." count={3} height="h-48" />}>
-          <SafetySection />
-        </Suspense>
-        
-        {/* In-Depth Dedicated Prompting Strategy Guide */}
-        <Suspense fallback={<SectionSkeleton title="Loading Prompting Strategy Guide..." count={2} height="h-80" />}>
-          <PromptingGuideSection />
-        </Suspense>
-      </main>
-
-      {/* Footer */}
-      <Footer />
-
-      {/* Search Modal */}
-      <SearchModal 
-        isOpen={isSearchOpen} 
-        onClose={() => setIsSearchOpen(false)} 
-      />
-
-      {/* Floating Prompting Guide Quick Action, Replay Loader & Back to Top */}
-      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
-        <button
-          onClick={() => setIsLoading(true)}
-          className="p-3 rounded-full bg-white dark:bg-[#1C1B19] border border-[#E6E4DC] dark:border-[#2E2D29] text-[#686660] dark:text-[#A09E96] hover:text-[#D97757] dark:hover:text-[#D97757] hover:bg-[#F2EDE4] dark:hover:bg-[#282724] transition-all shadow-md group"
-          title="Replay Claude Opus 5.5 Loading Animation"
-          aria-label="Replay intro animation"
-        >
-          <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
-        </button>
-
-        <a
-          href="#prompting-guide"
-          className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold bg-[#D97757] text-white hover:bg-[#C26547] transition-all shadow-lg hover:shadow-xl group"
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>Prompting Guide</span>
-        </a>
-
-        {showScrollTop && (
-          <button
-            onClick={scrollToTop}
-            className="p-3 rounded-full bg-white dark:bg-[#1C1B19] border border-[#E6E4DC] dark:border-[#2E2D29] text-[#141413] dark:text-[#FAF9F5] hover:bg-[#F2EDE4] dark:hover:bg-[#282724] transition-all shadow-md"
-            aria-label="Back to top"
-          >
-            <ArrowUp className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-    </div>
+      {/* Game Over Screen */}
+      {gameState === 'GAMEOVER' && (
+        <GameOverScreen
+          score={score}
+          highScore={highScore}
+          isNewRecord={isNewRecord}
+          stats={finalStats}
+          onRestart={handleRestart}
+        />
+      )}
+    </main>
   );
 }
