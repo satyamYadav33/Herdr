@@ -40,48 +40,7 @@ export const GameCanvas = ({
       engineRef.current = engine;
     }
 
-    // Keyboard controls
-    const handleKeyDown = (e) => {
-      // Don't intercept if typing in an input
-      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-
-      if (e.code === 'KeyP' || e.code === 'Escape') {
-        if (onTogglePause) onTogglePause();
-        return;
-      }
-
-      if (gameState !== 'PLAYING') return;
-
-      switch (e.code) {
-        case 'ArrowLeft':
-        case 'KeyA':
-          e.preventDefault();
-          engine.steerLeft();
-          break;
-        case 'ArrowRight':
-        case 'KeyD':
-          e.preventDefault();
-          engine.steerRight();
-          break;
-        case 'Space':
-        case 'ArrowUp':
-        case 'KeyW':
-          e.preventDefault();
-          engine.jump();
-          break;
-        case 'KeyH':
-          e.preventDefault();
-          engine.blowHorn();
-          break;
-        default:
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
       engine.destroy();
       if (engineRef) engineRef.current = null;
     };

@@ -24,6 +24,8 @@ export default function App() {
 
   const engineRef = useRef(null);
   const popupIdRef = useRef(0);
+  const gameStateRef = useRef(gameState);
+  gameStateRef.current = gameState;
 
   // Load high score from localStorage
   useEffect(() => {
@@ -78,10 +80,10 @@ export default function App() {
 
   // Toggle Pause
   const handleTogglePause = () => {
-    if (gameState === 'PLAYING') {
+    if (gameStateRef.current === 'PLAYING') {
       setGameState('PAUSED');
       if (engineRef.current) engineRef.current.pause();
-    } else if (gameState === 'PAUSED') {
+    } else if (gameStateRef.current === 'PAUSED') {
       setGameState('PLAYING');
       if (engineRef.current) engineRef.current.resume();
     }
@@ -108,6 +110,95 @@ export default function App() {
     }
     spawnPopup('PO POH! 📯', '#ffcc00');
   };
+
+  // Global Infallible Keyboard Controls (Capture Phase)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't intercept if user is typing in a form input
+      if (['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) return;
+
+      const key = e.key ? e.key.toLowerCase() : '';
+      const code = e.code || '';
+      const state = gameStateRef.current;
+
+      // 1. Menu Screen: Space or Enter to Start
+      if (state === 'MENU') {
+        if (code === 'Space' || key === ' ' || code === 'Enter' || key === 'enter') {
+          e.preventDefault();
+          handleStartGame();
+          return;
+        }
+      }
+
+      // 2. Game Over Screen: Space, Enter, or R to Restart
+      if (state === 'GAMEOVER') {
+        if (code === 'Space' || key === ' ' || code === 'Enter' || key === 'enter' || code === 'KeyR' || key === 'r') {
+          e.preventDefault();
+          handleRestart();
+          return;
+        }
+      }
+
+      // 3. Paused Screen: Esc, P, Space, or Enter to Resume
+      if (state === 'PAUSED') {
+        if (code === 'Escape' || code === 'KeyP' || key === 'p' || code === 'Space' || key === ' ' || code === 'Enter' || key === 'enter') {
+          e.preventDefault();
+          handleTogglePause();
+          return;
+        }
+      }
+
+      // 4. Active Playing Screen
+      if (state === 'PLAYING') {
+        // Pause: Escape or P
+        if (code === 'Escape' || code === 'KeyP' || key === 'p') {
+          e.preventDefault();
+          handleTogglePause();
+          return;
+        }
+
+        // Steer Left: Left Arrow or A
+        if (code === 'ArrowLeft' || key === 'arrowleft' || code === 'KeyA' || key === 'a') {
+          e.preventDefault();
+          engineRef.current?.steerLeft();
+          return;
+        }
+
+        // Steer Right: Right Arrow or D
+        if (code === 'ArrowRight' || key === 'arrowright' || code === 'KeyD' || key === 'd') {
+          e.preventDefault();
+          engineRef.current?.steerRight();
+          return;
+        }
+
+        // Jump: Space, Up Arrow, or W
+        if (code === 'Space' || key === ' ' || code === 'ArrowUp' || key === 'arrowup' || code === 'KeyW' || key === 'w') {
+          e.preventDefault();
+          engineRef.current?.jump();
+          return;
+        }
+
+        // Horn: H
+        if (code === 'KeyH' || key === 'h') {
+          e.preventDefault();
+          handleHorn();
+          return;
+        }
+
+        // Mute: M
+        if (code === 'KeyM' || key === 'm') {
+          e.preventDefault();
+          handleToggleMute();
+          return;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+    };
+  }, []);
 
   // Game Over Handler
   const handleGameOver = (stats) => {
